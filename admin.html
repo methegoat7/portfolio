@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>APEX Admin — Portfolio CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#060B18;--surface:#0D1526;--card:#111D35;--border:rgba(255,255,255,.08);
+  --blue:#3B82F6;--gold:#F59E0B;--green:#10B981;--red:#EF4444;--purple:#8B5CF6;--teal:#2DD4BF;
+  --text:#F1F5F9;--muted:#64748B;
+}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+
+/* LOGIN */
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;width:100%;gap:0;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:24px;}
+.login-logo{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;background:linear-gradient(135deg,#3B82F6,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;}
+.login-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:center;}
+.login-input{width:100%;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;}
+.login-input:focus{border-color:var(--blue);}
+.login-btn{width:100%;padding:14px;background:linear-gradient(180deg,#3B82F6,#2563EB);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:15px;cursor:pointer;transition:opacity .2s;}
+.login-btn:hover{opacity:.9;}
+.login-err{color:var(--red);font-size:13px;text-align:center;min-height:18px;}
+
+/* ADMIN SHELL */
+#admin-shell{display:none;width:100%;max-width:1300px;padding:32px 24px 60px;gap:32px;flex-direction:column;}
+.admin-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid var(--border);}
+.admin-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;}
+.admin-title span{color:var(--blue);}
+.logout-btn{padding:8px 16px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#FCA5A5;font-size:13px;cursor:pointer;transition:background .2s;}
+.logout-btn:hover{background:rgba(239,68,68,.2);}
+
+/* LAYOUT */
+.cms-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+@media(max-width:900px){.cms-layout{grid-template-columns:1fr;}}
+
+/* FORM PANEL */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:20px;}
+.panel-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text);padding-bottom:16px;border-bottom:1px solid var(--border);}
+.field{display:flex;flex-direction:column;gap:7px;}
+.field label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);}
+.field textarea{resize:vertical;min-height:90px;line-height:1.5;}
+.field select option{background:#0D1526;}
+.add-btn{padding:14px;background:linear-gradient(180deg,#3B82F6,#2563EB);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;transition:opacity .2s,transform .2s;}
+.add-btn:hover{opacity:.9;transform:translateY(-1px);}
+.add-btn:active{transform:translateY(0);}
+
+/* PREVIEW CARD */
+.preview-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.preview-card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.preview-card:hover{transform:translateY(-4px);}
+.role-badge{display:inline-block;padding:4px 12px;border-radius:7px;font-size:11px;font-weight:700;}
+.preview-tools{display:flex;flex-wrap:wrap;gap:6px;}
+.tool-tag{padding:3px 9px;border-radius:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#94A3B8;}
+.preview-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#F4F7FF;}
+.preview-desc{font-size:13.5px;color:#64748B;line-height:1.55;}
+.preview-outcomes{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.preview-outcomes li{display:flex;gap:10px;font-size:13px;color:#94A3B8;line-height:1.5;}
+.preview-outcomes li::before{content:"✓";color:var(--blue);flex-shrink:0;}
+
+/* PROJECTS LIST */
+.projects-list{display:flex;flex-direction:column;gap:12px;}
+.project-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.project-item-info{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.project-item-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.project-item-role{font-size:12px;color:var(--muted);}
+.delete-btn{padding:6px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:7px;color:#FCA5A5;font-size:12px;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.delete-btn:hover{background:rgba(239,68,68,.25);}
+.empty-state{text-align:center;color:var(--muted);font-size:13px;padding:32px;font-family:'JetBrains Mono',monospace;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;padding:14px 20px;border-radius:12px;font-weight:600;font-size:14px;z-index:999;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:#064E3B;border:1px solid #10B981;color:#6EE7B7;}
+.toast.error{background:#450A0A;border:1px solid #EF4444;color:#FCA5A5;}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--blue);}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">APEX⚡</div>
+    <div class="login-sub">Portfolio Admin CMS</div>
+    <input class="login-input" type="password" id="pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="login-err"></div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;font-family:'JetBrains Mono',monospace;">Default password: apex2026</div>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div id="admin-shell">
+  <div class="admin-header">
+    <div class="admin-title">APEX⚡ <span>Portfolio CMS</span></div>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">Total Projects</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-added" style="color:var(--green);">0</div>
+      <div class="stat-label">Added via CMS</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-roles" style="color:var(--gold);">0</div>
+      <div class="stat-label">Unique Roles</div>
+    </div>
+  </div>
+
+  <div class="cms-layout">
+
+    <!-- LEFT: ADD PROJECT FORM -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <div class="panel">
+        <div class="panel-title">Add New Project</div>
+
+        <div class="field">
+          <label>Project Title *</label>
+          <input type="text" id="f-title" placeholder="e.g. Cairo F&B Market Analysis" oninput="updatePreview()"/>
+        </div>
+
+        <div class="field">
+          <label>Role Type *</label>
+          <select id="f-role" onchange="updatePreview()">
+            <option value="">Select role...</option>
+            <option value="Business Analyst">Business Analyst</option>
+            <option value="Data Analyst">Data Analyst</option>
+            <option value="Financial Analyst">Financial Analyst</option>
+            <option value="Self-Development">Self-Development</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Tools Used * (comma separated)</label>
+          <input type="text" id="f-tools" placeholder="e.g. SQL, Power BI, Excel" oninput="updatePreview()"/>
+        </div>
+
+        <div class="field">
+          <label>One-Line Description *</label>
+          <input type="text" id="f-desc" placeholder="What this project analyzes or delivers" oninput="updatePreview()"/>
+        </div>
+
+        <div class="field">
+          <label>Outcomes — 3 bullets (one per line) *</label>
+          <textarea id="f-outcomes" placeholder="Built a dashboard with 6 visuals&#10;Wrote 8 SQL business queries&#10;Analyzed 163 restaurants" oninput="updatePreview()"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Project Link (optional)</label>
+          <input type="url" id="f-link" placeholder="https://..." oninput="updatePreview()"/>
+        </div>
+
+        <button class="add-btn" onclick="addProject()">Upload Project to Portfolio</button>
+      </div>
+
+      <!-- LIVE PREVIEW -->
+      <div class="panel">
+        <div class="panel-title">Live Preview</div>
+        <div class="preview-label">This is how your project card will look on the portfolio</div>
+        <div class="preview-card" id="preview-card" style="border-left:3px solid var(--blue);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span class="role-badge" id="prev-badge" style="background:rgba(59,130,246,.9);color:#F8FAFF;">Business Analyst</span>
+            <div class="preview-tools" id="prev-tools"></div>
+          </div>
+          <div>
+            <div class="preview-title" id="prev-title">Project Title</div>
+            <div class="preview-desc" id="prev-desc">Project description will appear here...</div>
+          </div>
+          <ul class="preview-outcomes" id="prev-outcomes">
+            <li>Outcome 1 will appear here</li>
+            <li>Outcome 2 will appear here</li>
+            <li>Outcome 3 will appear here</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: MANAGE PROJECTS -->
+    <div class="panel">
+      <div class="panel-title">Manage Projects</div>
+      <div id="projects-container" class="projects-list">
+        <div class="empty-state">No projects added via CMS yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const PASS = 'apex2026';
+const KEY  = 'apex_portfolio_projects';
+const AUTH = 'apex_admin_auth';
+
+const ROLE_STYLES = {
+  'Business Analyst': { bg:'rgba(59,130,246,.9)', color:'#F8FAFF', left:'#3B82F6' },
+  'Data Analyst':     { bg:'rgba(167,139,250,.9)', color:'#1A1033', left:'#8B5CF6' },
+  'Financial Analyst':{ bg:'rgba(245,158,11,.92)', color:'#241703', left:'#F59E0B' },
+  'Self-Development': { bg:'rgba(45,212,191,.9)', color:'#04211E', left:'#2DD4BF' },
+  'Other':            { bg:'rgba(148,163,184,.8)', color:'#0F172A', left:'#94A3B8' },
+};
+
+// ── AUTH ───────────────────────────────────────────────────────────────────
+function doLogin(){
+  const v = document.getElementById('pw-input').value;
+  if(v === PASS){
+    sessionStorage.setItem(AUTH,'1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('admin-shell').style.display='flex';
+    renderAll();
+  } else {
+    document.getElementById('login-err').textContent='Incorrect password.';
+    document.getElementById('pw-input').value='';
+  }
+}
+function doLogout(){
+  sessionStorage.removeItem(AUTH);
+  location.reload();
+}
+
+// Auto-login if session active
+if(sessionStorage.getItem(AUTH)==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-shell').style.display='flex';
+}
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+function getProjects(){
+  try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){return [];}
+}
+function saveProjects(arr){
+  localStorage.setItem(KEY, JSON.stringify(arr));
+}
+
+// ── ADD ────────────────────────────────────────────────────────────────────
+function addProject(){
+  const title    = document.getElementById('f-title').value.trim();
+  const role     = document.getElementById('f-role').value;
+  const tools    = document.getElementById('f-tools').value.trim();
+  const desc     = document.getElementById('f-desc').value.trim();
+  const outcomes = document.getElementById('f-outcomes').value.trim();
+  const link     = document.getElementById('f-link').value.trim();
+
+  if(!title||!role||!tools||!desc||!outcomes){
+    showToast('Please fill in all required fields.','error'); return;
+  }
+
+  const projects = getProjects();
+  projects.push({ id: Date.now(), title, role, tools, description: desc, outcomes, link });
+  saveProjects(projects);
+  clearForm();
+  renderAll();
+  showToast('Project added to portfolio!','success');
+}
+
+function clearForm(){
+  ['f-title','f-tools','f-desc','f-outcomes','f-link'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-role').value='';
+  updatePreview();
+}
+
+// ── DELETE ─────────────────────────────────────────────────────────────────
+function deleteProject(id){
+  if(!confirm('Remove this project from the portfolio?')) return;
+  const projects = getProjects().filter(p=>p.id!==id);
+  saveProjects(projects);
+  renderAll();
+  showToast('Project removed.','success');
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function renderAll(){
+  renderList();
+  updateStats();
+}
+
+function renderList(){
+  const projects = getProjects();
+  const container = document.getElementById('projects-container');
+  if(!projects.length){
+    container.innerHTML='<div class="empty-state">No projects added via CMS yet.<br/>Use the form to add your first project.</div>';
+    return;
+  }
+  container.innerHTML = projects.map(p=>`
+    <div class="project-item">
+      <div class="project-item-info">
+        <div class="project-item-name">${p.title}</div>
+        <div class="project-item-role">${p.role} &nbsp;·&nbsp; ${p.tools}</div>
+      </div>
+      <button class="delete-btn" onclick="deleteProject(${p.id})">Remove</button>
+    </div>
+  `).join('');
+}
+
+function updateStats(){
+  const projects = getProjects();
+  const BUILT_IN = 6;
+  document.getElementById('stat-total').textContent = BUILT_IN + projects.length;
+  document.getElementById('stat-added').textContent = projects.length;
+  const roles = new Set(projects.map(p=>p.role));
+  document.getElementById('stat-roles').textContent = roles.size;
+}
+
+// ── LIVE PREVIEW ───────────────────────────────────────────────────────────
+function updatePreview(){
+  const title    = document.getElementById('f-title').value || 'Project Title';
+  const role     = document.getElementById('f-role').value  || 'Business Analyst';
+  const tools    = document.getElementById('f-tools').value || '';
+  const desc     = document.getElementById('f-desc').value  || 'Project description will appear here...';
+  const outcomes = document.getElementById('f-outcomes').value || 'Outcome 1\nOutcome 2\nOutcome 3';
+
+  const rs = ROLE_STYLES[role] || ROLE_STYLES['Other'];
+
+  document.getElementById('prev-title').textContent = title;
+  document.getElementById('prev-desc').textContent  = desc;
+  document.getElementById('preview-card').style.borderLeftColor = rs.left;
+
+  const badge = document.getElementById('prev-badge');
+  badge.textContent = role;
+  badge.style.background = rs.bg;
+  badge.style.color = rs.color;
+
+  const toolsEl = document.getElementById('prev-tools');
+  toolsEl.innerHTML = tools.split(',').filter(t=>t.trim()).map(t=>
+    `<span class="tool-tag">${t.trim()}</span>`
+  ).join('');
+
+  const outcomesEl = document.getElementById('prev-outcomes');
+  outcomesEl.innerHTML = outcomes.split('\n').filter(o=>o.trim()).map(o=>
+    `<li>${o.trim()}</li>`
+  ).join('') || '<li>Outcome 1 will appear here</li><li>Outcome 2</li><li>Outcome 3</li>';
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function showToast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(()=>{ t.className='toast'; }, 3200);
+}
+
+// Init
+if(sessionStorage.getItem(AUTH)==='1') renderAll();
+updatePreview();
+</script>
+</body>
+</html>
