@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #060B18; color: #E2E8F5; font-family: "IBM Plex Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: #93C5FD; text-decoration: none; }
+a:hover { color: #F59E0B; }
+@keyframes omBlink { 0%, 49% { opacity: 1 } 50%, 100% { opacity: 0 } }
+@keyframes omSheen { 0% { background-position: 0% 50% } 100% { background-position: 200% 50% } }
+@keyframes omFloat { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-7px) } }
+@keyframes omPulse { 0% { box-shadow: 0 0 0 0 rgba(59,130,246,.55) } 70% { box-shadow: 0 0 0 14px rgba(59,130,246,0) } 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0) } }
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="position: relative; min-height: 100vh; background: radial-gradient(1200px 700px at 15% -10%, rgba(59,130,246,.16), transparent 60%), radial-gradient(900px 600px at 90% 10%, rgba(245,158,11,.09), transparent 60%), #060B18; overflow-x: hidden;">
+  <canvas ref="{{ canvasRef }}" style="position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;"></canvas>
+
+  <div style="position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 40; background: rgba(148,163,184,.1);">
+    <div style="{{ progressStyle }}"></div>
+  </div>
+
+  <button onClick="{{ toggleRail }}" aria-label="Toggle navigation" style="position: fixed; left: 20px; top: 20px; z-index: 60; width: 46px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-radius: 13px; background: rgba(13,21,38,.82); border: 1px solid rgba(59,130,246,.28); backdrop-filter: blur(14px); cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;" style-hover="transform: scale(1.06); border-color: rgba(59,130,246,.6);">
+    <span style="{{ barTop }}"></span>
+    <span style="{{ barMid }}"></span>
+    <span style="{{ barBot }}"></span>
+  </button>
+
+  <div onClick="{{ closeRail }}" style="{{ scrimStyle }}"></div>
+
+  <nav style="{{ railStyle }}">
+    <div style="display: flex; align-items: center; gap: 12px; padding: 0 6px 24px; border-bottom: 1px solid rgba(255,255,255,.08);">
+      <span style="width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: linear-gradient(150deg, rgba(59,130,246,.3), rgba(245,158,11,.16)); border: 1px solid rgba(147,197,253,.32); box-shadow: 0 0 18px -4px rgba(59,130,246,.7); font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #F4F7FF;">NM</span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #64748B;">Portfolio</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 22px;">
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="5">
+        <a href="{{ item.href }}" onClick="{{ closeRail }}" style="{{ item.link_style }}" style-hover="background: rgba(59,130,246,.1);">
+          <span style="{{ item.dot }}"></span>
+          <span style="{{ item.label_style }}">{{ item.label }}</span>
+        </a>
+      </sc-for>
+    </div>
+    <div style="margin-top: auto; display: flex; gap: 10px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08);">
+      <a href="mailto:noureldin.em7@gmail.com" title="Email" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #93C5FD; transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;" style-hover="transform: translateY(-3px); border-color: rgba(59,130,246,.55); color: #BFDBFE;">@</a>
+      <a href="https://www.linkedin.com/in/nour-eldin-739510336" target="_blank" rel="noopener" title="LinkedIn" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #93C5FD; transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;" style-hover="transform: translateY(-3px); border-color: rgba(59,130,246,.55); color: #BFDBFE;">in</a>
+      <a href="#contact" onClick="{{ closeRail }}" title="Contact" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #FBBF24; transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;" style-hover="transform: translateY(-3px); border-color: rgba(245,158,11,.55); color: #FBBF24;">◎</a>
+    </div>
+  </nav>
+
+  <div style="position: relative; z-index: 1;">
+
+    <section id="hero" data-screen-label="Hero" style="max-width: 1180px; margin: 0 auto; padding: 120px 24px 96px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+      <div data-reveal="" style="display: flex; align-items: center; gap: 10px; padding: 7px 14px; border: 1px solid rgba(59,130,246,.3); border-radius: 999px; background: rgba(59,130,246,.08); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #93C5FD;">
+        <span style="width: 7px; height: 7px; border-radius: 999px; background: #3B82F6; animation: omPulse 2.4s infinite;"></span>
+        <span>Cairo, Egypt — Open to GCC</span>
+      </div>
+      <h1 style="margin: 30px 0 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(34px, 7.4vw, 84px); line-height: 1.02; letter-spacing: -0.02em; color: #F4F7FF; min-height: 1.05em; background: linear-gradient(100deg, #F4F7FF 20%, #9DC0FF 45%, #F4F7FF 70%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: omSheen 7s linear infinite;">
+        <span>{{ typedName }}</span><span style="color: #3B82F6; -webkit-text-fill-color: #3B82F6; animation: omBlink 1s step-end infinite;">_</span>
+      </h1>
+      <div data-reveal="" style="margin-top: 22px; font-family: 'JetBrains Mono', monospace; font-size: clamp(14px, 2.4vw, 22px); color: #F59E0B; letter-spacing: .06em; min-height: 1.4em;">
+        <span style="color: #64748B;">&gt; </span><span>{{ role }}</span>
+      </div>
+      <p data-reveal="" style="margin: 24px 0 0; max-width: 620px; font-size: clamp(15px, 1.6vw, 17px); line-height: 1.7; color: #94A3B8; text-wrap: pretty;">Business Administration student building an analytics and business development practice across the Egyptian and GCC markets.</p>
+      <div data-reveal="" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 38px;">
+        <a href="#projects" style="padding: 15px 30px; border-radius: 10px; background: linear-gradient(180deg, #3B82F6, #2563EB); color: #F8FAFF; font-weight: 600; font-size: 15px; border: 1px solid rgba(147,197,253,.45); box-shadow: 0 12px 34px -14px rgba(59,130,246,.85); transition: transform .2s ease, box-shadow .2s ease;" style-hover="transform: translateY(-2px); box-shadow: 0 18px 42px -14px rgba(59,130,246,1); color: #F8FAFF;">View My Work</a>
+        <a href="NourElDin_CV.pdf" download style="padding: 15px 30px; border-radius: 10px; background: rgba(245,158,11,.08); color: #FBBF24; font-weight: 600; font-size: 15px; border: 1px solid rgba(245,158,11,.4); transition: transform .2s ease, background .2s ease;" style-hover="transform: translateY(-2px); background: rgba(245,158,11,.16); color: #FBBF24;" id="cv-download-btn" download>Download CV</a>
+      </div>
+
+      <div data-reveal="" style="width: 100%; margin-top: 64px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: rgba(59,130,246,.16); border: 1px solid rgba(59,130,246,.18); border-radius: 16px; overflow: hidden; backdrop-filter: blur(14px);">
+        <div style="padding: 26px 18px; background: rgba(9,16,34,.72);">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 700; color: #F4F7FF;">{{ h1 }}</div>
+          <div style="margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #7C8AA3;">Projects</div>
+        </div>
+        <div style="padding: 26px 18px; background: rgba(9,16,34,.72);">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 700; color: #F4F7FF;">{{ h2 }}</div>
+          <div style="margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #7C8AA3;">Restaurants Analyzed</div>
+        </div>
+        <div style="padding: 26px 18px; background: rgba(9,16,34,.72);">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 700; color: #F4F7FF;">{{ h3 }}</div>
+          <div style="margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #7C8AA3;">Financial Ratios</div>
+        </div>
+        <div style="padding: 26px 18px; background: rgba(9,16,34,.72);">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 700; color: #FBBF24;">{{ h4 }}</div>
+          <div style="margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #7C8AA3;">EGX Companies Analyzed</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" ref="{{ aboutRef }}" data-screen-label="About" style="max-width: 1180px; margin: 0 auto; padding: 80px 24px;">
+      <div data-reveal="" style="display: flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #3B82F6;">01</span>
+        <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 4vw, 40px); font-weight: 600; letter-spacing: -0.01em; color: #F4F7FF;">About</h2>
+        <span style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(59,130,246,.4), transparent);"></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; align-items: start;">
+        <div data-reveal="" style="padding: 32px; border-radius: 18px; background: rgba(255,255,255,.035); border: 1px solid rgba(59,130,246,.2); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 24px 60px -30px rgba(59,130,246,.5);">
+          <div style="width: 72px; height: 72px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: linear-gradient(150deg, rgba(59,130,246,.28), rgba(245,158,11,.18)); border: 1px solid rgba(147,197,253,.3); font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #F4F7FF; animation: omFloat 6s ease-in-out infinite;">NM</div>
+          <div style="margin-top: 22px; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600; color: #F4F7FF;">Noureldin Mohamed</div>
+          <div style="margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .1em; color: #F59E0B;">Business Analyst · Data Analyst</div>
+          <div style="margin-top: 26px; display: grid; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(148,163,184,.14);">
+              <span style="font-size: 13px; color: #7C8AA3;">University</span>
+              <span style="font-size: 13px; font-weight: 500; color: #E2E8F5; text-align: right;">Helwan University</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(148,163,184,.14);">
+              <span style="font-size: 13px; color: #7C8AA3;">Major</span>
+              <span style="font-size: 13px; font-weight: 500; color: #E2E8F5; text-align: right;">Financial Markets &amp; Institutions</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(148,163,184,.14);">
+              <span style="font-size: 13px; color: #7C8AA3;">Graduation</span>
+              <span style="font-size: 13px; font-weight: 500; color: #E2E8F5; text-align: right;">2027</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 16px;">
+              <span style="font-size: 13px; color: #7C8AA3;">Age</span>
+              <span style="font-size: 13px; font-weight: 500; color: #E2E8F5; text-align: right;">21</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; gap: 24px;">
+          <p data-reveal="" style="margin: 0; font-size: clamp(15px, 1.7vw, 17.5px); line-height: 1.8; color: #B3BECF; text-wrap: pretty;">Business Administration student specializing in Financial Markets and Institutions at Helwan University (GPA 3.2, graduating 2027). Currently working as a Customer Experience Associate at Trapped Egypt while building toward roles in Business Analysis, Data Analytics, and Business Development across the Egyptian and GCC markets. Completing the APEX 90-day self-directed learning sprint.</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
+            <div data-reveal="" style="padding: 22px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(59,130,246,.16); backdrop-filter: blur(12px); transition: border-color .25s ease, transform .25s ease;" style-hover="border-color: rgba(59,130,246,.5); transform: translateY(-3px);">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #93C5FD;">{{ a1 }}</div>
+              <div style="margin-top: 6px; font-size: 12px; color: #7C8AA3;">Projects</div>
+            </div>
+            <div data-reveal="" style="padding: 22px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(59,130,246,.16); backdrop-filter: blur(12px); transition: border-color .25s ease, transform .25s ease;" style-hover="border-color: rgba(59,130,246,.5); transform: translateY(-3px);">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #93C5FD;">{{ a2 }}</div>
+              <div style="margin-top: 6px; font-size: 12px; color: #7C8AA3;">Data Points</div>
+            </div>
+            <div data-reveal="" style="padding: 22px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(245,158,11,.18); backdrop-filter: blur(12px); transition: border-color .25s ease, transform .25s ease;" style-hover="border-color: rgba(245,158,11,.5); transform: translateY(-3px);">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #FBBF24;">{{ a3 }}</div>
+              <div style="margin-top: 6px; font-size: 12px; color: #7C8AA3;">Financial Ratios</div>
+            </div>
+            <div data-reveal="" style="padding: 22px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(245,158,11,.18); backdrop-filter: blur(12px); transition: border-color .25s ease, transform .25s ease;" style-hover="border-color: rgba(245,158,11,.5); transform: translateY(-3px);">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #FBBF24;">{{ a4 }}</div>
+              <div style="margin-top: 6px; font-size: 12px; color: #7C8AA3;">Certifications in Progress</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" data-screen-label="Skills" style="max-width: 1180px; margin: 0 auto; padding: 80px 24px;">
+      <div data-reveal="" style="display: flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #3B82F6;">02</span>
+        <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 4vw, 40px); font-weight: 600; letter-spacing: -0.01em; color: #F4F7FF;">Skill Stack</h2>
+        <span style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(59,130,246,.4), transparent);"></span>
+      </div>
+
+      <div style="display: grid; gap: 44px;">
+        <div>
+          <div data-reveal="" style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; color: #E2E8F5;">Analytics Tools</h3>
+            <span style="padding: 5px 12px; border-radius: 999px; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.35); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #93C5FD;">Intermediate</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.25), 0 22px 50px -26px rgba(59,130,246,.9); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #93C5FD;">XL</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Excel</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Intermediate</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.25), 0 22px 50px -26px rgba(59,130,246,.9); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.28); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: #93C5FD;">SQL</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">SQL</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Intermediate</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.25), 0 22px 50px -26px rgba(59,130,246,.9); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #93C5FD;">BI</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Power BI</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Intermediate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div data-reveal="" style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; color: #E2E8F5;">Business Skills</h3>
+            <span style="padding: 5px 12px; border-radius: 999px; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.3); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #CBD5E1;">Developing</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(148,163,184,.45); box-shadow: 0 0 0 1px rgba(148,163,184,.2), 0 22px 50px -26px rgba(148,163,184,.6); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.26); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #CBD5E1;">BA</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Business Analysis</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Developing</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(148,163,184,.45); box-shadow: 0 0 0 1px rgba(148,163,184,.2), 0 22px 50px -26px rgba(148,163,184,.6); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.26); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #CBD5E1;">PM</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Process Mapping</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Developing</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(148,163,184,.45); box-shadow: 0 0 0 1px rgba(148,163,184,.2), 0 22px 50px -26px rgba(148,163,184,.6); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.26); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #CBD5E1;">FA</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Financial Analysis</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Developing</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(148,163,184,.45); box-shadow: 0 0 0 1px rgba(148,163,184,.2), 0 22px 50px -26px rgba(148,163,184,.6); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.26); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #CBD5E1;">ERP</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">ERP Concepts</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Developing</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div data-reveal="" style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; color: #E2E8F5;">Soft Skills</h3>
+            <span style="padding: 5px 12px; border-radius: 999px; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #FBBF24;">Advanced</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(245,158,11,.5); box-shadow: 0 0 0 1px rgba(245,158,11,.22), 0 22px 50px -26px rgba(245,158,11,.8); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #FBBF24;">CM</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Communication</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Advanced</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(245,158,11,.5); box-shadow: 0 0 0 1px rgba(245,158,11,.22), 0 22px 50px -26px rgba(245,158,11,.8); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #FBBF24;">PR</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Presentation</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Advanced</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(245,158,11,.5); box-shadow: 0 0 0 1px rgba(245,158,11,.22), 0 22px 50px -26px rgba(245,158,11,.8); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #FBBF24;">TL</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Team Leadership</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Advanced</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(245,158,11,.5); box-shadow: 0 0 0 1px rgba(245,158,11,.22), 0 22px 50px -26px rgba(245,158,11,.8); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #FBBF24;">CR</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Client Relations</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Advanced</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div data-reveal="" style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; color: #E2E8F5;">AI &amp; Productivity</h3>
+            <span style="padding: 5px 12px; border-radius: 999px; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.35); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #93C5FD;">Intermediate</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.25), 0 22px 50px -26px rgba(59,130,246,.9); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #93C5FD;">AI</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">AI Prompting</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Intermediate</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.25), 0 22px 50px -26px rgba(59,130,246,.9); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #93C5FD;">NS</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Notion Systems</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Intermediate</div>
+              </div>
+            </div>
+            <div data-reveal="" style="display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(12px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.25), 0 22px 50px -26px rgba(59,130,246,.9); transform: translateY(-3px);">
+              <span style="flex: none; width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.28); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #93C5FD;">RS</span>
+              <div>
+                <div style="font-size: 15px; font-weight: 600; color: #F4F7FF;">Research &amp; Synthesis</div>
+                <div style="margin-top: 3px; font-size: 11.5px; color: #7C8AA3;">Intermediate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" data-screen-label="Projects" style="max-width: 1180px; margin: 0 auto; padding: 80px 24px;">
+      <div data-reveal="" style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #3B82F6;">03</span>
+        <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 4vw, 40px); font-weight: 600; letter-spacing: -0.01em; color: #F4F7FF;">Portfolio Projects</h2>
+        <span style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(59,130,246,.4), transparent);"></span>
+      </div>
+      <p data-reveal="" style="margin: 0 0 36px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: .08em; color: #64748B;">Hover or focus a card to see outcomes</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px;">
+
+        <div data-reveal="" tabindex="0" style="perspective: 1600px; height: 380px; outline: none; border-radius: 18px;">
+          <div style="position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.4,.1,.2,1);" style-hover="transform: rotateY(180deg);">
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: rgba(255,255,255,.035); border: 1px solid rgba(59,130,246,.22); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);">
+              <span style="align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: rgba(59,130,246,.14); border: 1px solid rgba(59,130,246,.4); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #93C5FD;">Business Analyst</span>
+              <h3 style="margin: 20px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 600; line-height: 1.25; color: #F4F7FF; text-wrap: pretty;">Strike Academy — Operations Efficiency</h3>
+              <p style="margin: 14px 0 0; font-size: 14.5px; line-height: 1.65; color: #94A3B8;">End-to-end BA of a Cairo sports academy operations</p>
+              <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">BPMN</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Draw.io</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Word</span>
+              </div>
+            </div>
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: linear-gradient(160deg, rgba(59,130,246,.16), rgba(9,16,34,.9)); border: 1px solid rgba(59,130,246,.42); backdrop-filter: blur(16px);">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #93C5FD;">Outcomes</div>
+              <div style="margin-top: 18px; display: grid; gap: 14px;">
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #3B82F6; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Identified 7 operational inefficiencies across 4 process areas</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #3B82F6; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Delivered AS-IS and TO-BE BPMN swim lane diagrams</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #3B82F6; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Produced a formal BRD with recommended digital solutions</span></div>
+              </div>
+              <a href="https://drive.google.com/drive/folders/1n3V6mlFl45CNvVBtjcXFdCydzMPU7DcR?usp=drive_link" target="_blank" rel="noopener" style="margin-top: auto; align-self: flex-start; padding: 11px 20px; border-radius: 9px; background: rgba(59,130,246,.9); color: #F8FAFF; font-size: 13.5px; font-weight: 600; border: 1px solid rgba(147,197,253,.4);" style-hover="background: #2563EB; color: #F8FAFF;">View Project</a>
+            </div>
+          </div>
+        </div>
+
+        <div data-reveal="" tabindex="0" style="perspective: 1600px; height: 380px; outline: none; border-radius: 18px;">
+          <div style="position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.4,.1,.2,1);" style-hover="transform: rotateY(180deg);">
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: rgba(255,255,255,.035); border: 1px solid rgba(167,139,250,.22); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);">
+              <span style="align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: rgba(167,139,250,.14); border: 1px solid rgba(167,139,250,.4); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #C4B5FD;">Data Analyst</span>
+              <h3 style="margin: 20px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 600; line-height: 1.25; color: #F4F7FF; text-wrap: pretty;">Cairo F&amp;B Delivery Market Analysis</h3>
+              <p style="margin: 14px 0 0; font-size: 14.5px; line-height: 1.65; color: #94A3B8;">End-to-end data pipeline analyzing 163 Cairo restaurants</p>
+              <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">SQL</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Power BI</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Excel</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Python</span>
+              </div>
+            </div>
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: linear-gradient(160deg, rgba(167,139,250,.16), rgba(9,16,34,.9)); border: 1px solid rgba(167,139,250,.42); backdrop-filter: blur(16px);">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #C4B5FD;">Outcomes</div>
+              <div style="margin-top: 18px; display: grid; gap: 14px;">
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #A78BFA; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Scraped real restaurant data from Talabat and Elmenus platforms</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #A78BFA; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Wrote 8 business SQL queries on a MySQL database</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #A78BFA; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Built a Power BI dashboard with 6 visuals and 2 interactive slicers</span></div>
+              </div>
+              <a href="https://drive.google.com/drive/folders/1s2jw0T_ytzT98fIdQfAZ4mESEhjJIcqv?usp=drive_link" target="_blank" rel="noopener" style="margin-top: auto; align-self: flex-start; padding: 11px 20px; border-radius: 9px; background: rgba(167,139,250,.9); color: #1A1033; font-size: 13.5px; font-weight: 600; border: 1px solid rgba(196,181,253,.5);" style-hover="background: #C4B5FD; color: #1A1033;">View Project</a>
+            </div>
+          </div>
+        </div>
+
+        <div data-reveal="" tabindex="0" style="perspective: 1600px; height: 380px; outline: none; border-radius: 18px;">
+          <div style="position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.4,.1,.2,1);" style-hover="transform: rotateY(180deg);">
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: rgba(255,255,255,.035); border: 1px solid rgba(245,158,11,.24); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);">
+              <span style="align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: rgba(245,158,11,.14); border: 1px solid rgba(245,158,11,.4); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #FBBF24;">Financial Analyst</span>
+              <h3 style="margin: 20px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 600; line-height: 1.25; color: #F4F7FF; text-wrap: pretty;">EGX Blue-Chip Financial Ratio Analysis</h3>
+              <p style="margin: 14px 0 0; font-size: 14.5px; line-height: 1.65; color: #94A3B8;">3-year ratio analysis of 5 EGX-listed companies across 13 ratios</p>
+              <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Excel</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Financial Modeling</span>
+              </div>
+            </div>
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: linear-gradient(160deg, rgba(245,158,11,.16), rgba(9,16,34,.9)); border: 1px solid rgba(245,158,11,.42); backdrop-filter: blur(16px);">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #FBBF24;">Outcomes</div>
+              <div style="margin-top: 18px; display: grid; gap: 14px;">
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #F59E0B; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Analyzed CIB, Juhayna, Eastern Company, Telecom Egypt, Porto Group</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #F59E0B; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Calculated 13 ratios across profitability, liquidity, leverage, efficiency, market</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #F59E0B; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Eastern Company identified as top performer with 45% ROE in 2023</span></div>
+              </div>
+              <a href="https://docs.google.com/spreadsheets/d/15jehHTQiW9sU4ibImQ7pPVBe5wM6Q1Uq/edit?usp=drive_link" target="_blank" rel="noopener" style="margin-top: auto; align-self: flex-start; padding: 11px 20px; border-radius: 9px; background: rgba(245,158,11,.92); color: #241703; font-size: 13.5px; font-weight: 600; border: 1px solid rgba(251,191,36,.5);" style-hover="background: #FBBF24; color: #241703;">View Project</a>
+            </div>
+          </div>
+        </div>
+
+        <div data-reveal="" tabindex="0" style="perspective: 1600px; height: 380px; outline: none; border-radius: 18px;">
+          <div style="position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.4,.1,.2,1);" style-hover="transform: rotateY(180deg);">
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: rgba(255,255,255,.035); border: 1px solid rgba(167,139,250,.22); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);">
+              <span style="align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: rgba(167,139,250,.14); border: 1px solid rgba(167,139,250,.4); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #C4B5FD;">Data Analyst</span>
+              <h3 style="margin: 20px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 600; line-height: 1.25; color: #F4F7FF; text-wrap: pretty;">Trapped Egypt — Call Center KPI Dashboard</h3>
+              <p style="margin: 14px 0 0; font-size: 14.5px; line-height: 1.65; color: #94A3B8;">Live operational KPI sheet built from real Trapped Egypt call center data</p>
+              <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Excel</span>
+              </div>
+            </div>
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: linear-gradient(160deg, rgba(167,139,250,.16), rgba(9,16,34,.9)); border: 1px solid rgba(167,139,250,.42); backdrop-filter: blur(16px);">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #C4B5FD;">Outcomes</div>
+              <div style="margin-top: 18px; display: grid; gap: 14px;">
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #A78BFA; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Processed real call logs including duration, wait time, answer rate, and agent performance</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #A78BFA; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Built a structured KPI tracking sheet for management visibility</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #A78BFA; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Delivered actionable metrics from raw operational data at a live business</span></div>
+              </div>
+              <a href="https://docs.google.com/spreadsheets/d/1A_FHlfBGdOSO7RzzYUZbo6aZehOtaZR6/edit?usp=drive_link&ouid=108526010690199186012&rtpof=true&sd=true" target="_blank" rel="noopener" style="margin-top: auto; align-self: flex-start; padding: 11px 20px; border-radius: 9px; background: rgba(167,139,250,.9); color: #1A1033; font-size: 13.5px; font-weight: 600; border: 1px solid rgba(196,181,253,.5);" style-hover="background: #C4B5FD; color: #1A1033;">View Project</a>
+            </div>
+          </div>
+        </div>
+
+        <div data-reveal="" tabindex="0" style="perspective: 1600px; height: 380px; outline: none; border-radius: 18px;">
+          <div style="position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.4,.1,.2,1);" style-hover="transform: rotateY(180deg);">
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: rgba(255,255,255,.035); border: 1px solid rgba(59,130,246,.22); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);">
+              <span style="align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: rgba(59,130,246,.14); border: 1px solid rgba(59,130,246,.4); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #93C5FD;">Business Analyst</span>
+              <h3 style="margin: 20px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 600; line-height: 1.25; color: #F4F7FF; text-wrap: pretty;">Quality Control Proposal — Trapped Egypt</h3>
+              <p style="margin: 14px 0 0; font-size: 14.5px; line-height: 1.65; color: #94A3B8;">Full QC business proposal delivered internally at Trapped Egypt</p>
+              <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">PowerPoint</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Research</span>
+              </div>
+            </div>
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: linear-gradient(160deg, rgba(59,130,246,.16), rgba(9,16,34,.9)); border: 1px solid rgba(59,130,246,.42); backdrop-filter: blur(16px);">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #93C5FD;">Outcomes</div>
+              <div style="margin-top: 18px; display: grid; gap: 14px;">
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #3B82F6; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Identified gap in call handling process — no structured quality standard existed</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #3B82F6; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Designed a Monitor → Score → Coach QC framework for the call center</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #3B82F6; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Presented revenue and retention case for implementing QA — projected up to 20% conversion improvement</span></div>
+              </div>
+              <a href="#" target="_blank" rel="noopener" style="margin-top: auto; align-self: flex-start; padding: 11px 20px; border-radius: 9px; background: rgba(59,130,246,.9); color: #F8FAFF; font-size: 13.5px; font-weight: 600; border: 1px solid rgba(147,197,253,.4);" style-hover="background: #2563EB; color: #F8FAFF;">View Project</a>
+            </div>
+          </div>
+        </div>
+
+
+        <div data-reveal="" tabindex="0" style="perspective: 1600px; height: 380px; outline: none; border-radius: 18px;">
+          <div style="position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.4,.1,.2,1);" style-hover="transform: rotateY(180deg);">
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: rgba(255,255,255,.035); border: 1px solid rgba(45,212,191,.22); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);">
+              <span style="align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: rgba(45,212,191,.14); border: 1px solid rgba(45,212,191,.4); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #5EEAD4;">Self-Development</span>
+              <h3 style="margin: 20px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 600; line-height: 1.25; color: #F4F7FF; text-wrap: pretty;">APEX — 90-Day Learning Sprint</h3>
+              <p style="margin: 14px 0 0; font-size: 14.5px; line-height: 1.65; color: #94A3B8;">A structured 21-module self-directed learning program built in Notion covering the full BA, DA, and BD skill stack</p>
+              <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Notion</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">SQL</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Power BI</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">Excel</span>
+                <span style="padding: 5px 10px; border-radius: 7px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.18); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #B3BECF;">BPMN</span>
+              </div>
+            </div>
+            <div style="position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); display: flex; flex-direction: column; padding: 28px; border-radius: 18px; background: linear-gradient(160deg, rgba(45,212,191,.15), rgba(9,16,34,.9)); border: 1px solid rgba(45,212,191,.42); backdrop-filter: blur(16px);">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #5EEAD4;">Outcomes</div>
+              <div style="margin-top: 18px; display: grid; gap: 14px;">
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #2DD4BF; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Designed a 90-day curriculum across 10 skills including SQL, Power BI, Business Analysis, SAP, and AI Prompting</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #2DD4BF; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Built a self-updating daily interface in Notion with module tracking, resource links, and task checklists</span></div>
+                <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="flex: none; margin-top: 2px; color: #2DD4BF; font-size: 14px;">✓</span><span style="font-size: 14px; line-height: 1.6; color: #E2E8F5;">Produced 7 capstone outputs including an Excel dashboard, SQL query pack, Power BI report, and BRD</span></div>
+              </div>
+              <a href="https://app.notion.com/p/38c378b055d7809f9e55d4e6ddba2c98?v=38c378b055d78093bf41000cbee6a9b3%26source%3Dcopy_link" target="_blank" rel="noopener" style="margin-top: auto; align-self: flex-start; padding: 11px 20px; border-radius: 9px; background: rgba(45,212,191,.9); color: #04211E; font-size: 13.5px; font-weight: 600; border: 1px solid rgba(94,234,212,.5);" style-hover="background: #5EEAD4; color: #04211E;">View Project</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" data-screen-label="Contact" style="max-width: 1180px; margin: 0 auto; padding: 80px 24px 120px;">
+      <div data-reveal="" style="display: flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #3B82F6;">04</span>
+        <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 4vw, 40px); font-weight: 600; letter-spacing: -0.01em; color: #F4F7FF;">Let's Connect</h2>
+        <span style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(59,130,246,.4), transparent);"></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+        <div data-reveal="" style="padding: 28px; border-radius: 16px; background: rgba(255,255,255,.035); border: 1px solid rgba(59,130,246,.2); backdrop-filter: blur(14px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.22), 0 26px 60px -30px rgba(59,130,246,.95); transform: translateY(-3px);">
+          <span style="display: flex; width: 44px; height: 44px; border-radius: 12px; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3); font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #93C5FD;">@</span>
+          <div style="margin-top: 20px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #7C8AA3;">Email</div>
+          <div style="margin-top: 8px; font-size: 15px; font-weight: 500; color: #F4F7FF; word-break: break-all;">noureldin.em7@gmail.com</div>
+          <button onClick="{{ copyEmail }}" style="margin-top: 18px; padding: 9px 16px; border-radius: 8px; background: rgba(59,130,246,.14); border: 1px solid rgba(59,130,246,.4); color: #BFDBFE; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: .08em; cursor: pointer; transition: background .2s ease;" style-hover="background: rgba(59,130,246,.28);">{{ copyLabel }}</button>
+        </div>
+
+        <div data-reveal="" style="padding: 28px; border-radius: 16px; background: rgba(255,255,255,.035); border: 1px solid rgba(59,130,246,.2); backdrop-filter: blur(14px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 1px rgba(59,130,246,.22), 0 26px 60px -30px rgba(59,130,246,.95); transform: translateY(-3px);">
+          <span style="display: flex; width: 44px; height: 44px; border-radius: 12px; align-items: center; justify-content: center; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3); font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500; color: #93C5FD;">in</span>
+          <div style="margin-top: 20px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #7C8AA3;">LinkedIn</div>
+          <div style="margin-top: 8px; font-size: 15px; font-weight: 500; color: #F4F7FF;">Noureldin Mohamed</div>
+          <a href="https://www.linkedin.com/in/nour-eldin-739510336" target="_blank" rel="noopener" style="display: inline-block; margin-top: 18px; padding: 9px 16px; border-radius: 8px; background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.26); color: #CBD5E1; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: .08em;" style-hover="background: rgba(148,163,184,.16); color: #F4F7FF;">Open Profile</a>
+        </div>
+
+        <div data-reveal="" style="padding: 28px; border-radius: 16px; background: rgba(255,255,255,.035); border: 1px solid rgba(245,158,11,.22); backdrop-filter: blur(14px); transition: box-shadow .28s ease, border-color .28s ease, transform .28s ease;" style-hover="border-color: rgba(245,158,11,.55); box-shadow: 0 0 0 1px rgba(245,158,11,.22), 0 26px 60px -30px rgba(245,158,11,.9); transform: translateY(-3px);">
+          <span style="display: flex; width: 44px; height: 44px; border-radius: 12px; align-items: center; justify-content: center; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.3); font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #FBBF24;">◎</span>
+          <div style="margin-top: 20px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #7C8AA3;">Location</div>
+          <div style="margin-top: 8px; font-size: 15px; font-weight: 500; color: #F4F7FF;">Cairo, Egypt</div>
+          <div style="margin-top: 6px; font-size: 13.5px; color: #FBBF24;">Open to GCC</div>
+        </div>
+      </div>
+
+      <p data-reveal="" style="margin: 56px 0 0; text-align: center; font-size: clamp(14px, 1.8vw, 17px); line-height: 1.7; color: #94A3B8; text-wrap: pretty;">Available for internships, entry-level roles, and consulting projects — Egypt and GCC</p>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showParticles&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Background&quot; },
+  &quot;particleDensity&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 62, &quot;min&quot;: 15, &quot;max&quot;: 140, &quot;step&quot;: 1, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Background&quot; },
+  &quot;particleSpeed&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 0.22, &quot;min&quot;: 0.05, &quot;max&quot;: 0.8, &quot;step&quot;: 0.01, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Background&quot; },
+  &quot;typingSpeed&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 85, &quot;min&quot;: 25, &quot;max&quot;: 200, &quot;step&quot;: 5, &quot;unit&quot;: &quot;ms&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Animation&quot; },
+  &quot;roleRotationMs&quot;: { &quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 2600, &quot;min&quot;: 1200, &quot;max&quot;: 6000, &quot;step&quot;: 100, &quot;unit&quot;: &quot;ms&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Animation&quot; },
+  &quot;revealAnimations&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Animation&quot; }
+}">
+class Component extends DCLogic {
+  state = { typed: "", roleI: 0, heroP: 0, aboutP: 0, copied: false, active: 0, progress: 0, railOpen: false, wide: false };
+
+  toggleRail = () => this.setState(s => ({ railOpen: !s.railOpen }));
+  closeRail = () => { if (this.state.railOpen) this.setState({ railOpen: false }); };
+
+  NAME = "NOURELDIN MOHAMED";
+  ROLES = ["Business Analyst", "Data Analyst", "Financial Analyst"];
+  NAV = [
+    { id: "hero", label: "Home" },
+    { id: "about", label: "About" },
+    { id: "skills", label: "Skills" },
+    { id: "projects", label: "Projects" },
+    { id: "contact", label: "Contact" }
+  ];
+
+  constructor(props) {
+    super(props);
+    this.rootRef = React.createRef();
+    this.canvasRef = React.createRef();
+    this.aboutRef = React.createRef();
+    this.timers = [];
+    this.raf = 0;
+  }
+
+  componentDidMount() {
+    this.typeLoop();
+    this.timers.push(setInterval(() => {
+      this.setState(s => ({ roleI: (s.roleI + 1) % this.ROLES.length }));
+    }, Math.max(1200, this.props.roleRotationMs ?? 2600)));
+
+    this.timers.push(setTimeout(() => this.ramp("heroP"), 500));
+    this.setupReveal();
+    this.setupParticles();
+    this.setupScroll();
+  }
+
+  setupScroll() {
+    this.onScroll = () => {
+      if (this.scrollQueued) return;
+      this.scrollQueued = true;
+      requestAnimationFrame(() => {
+        this.scrollQueued = false;
+        const doc = document.documentElement;
+        const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+        const progress = Math.min(1, Math.max(0, window.scrollY / max));
+        const probe = window.scrollY + window.innerHeight * 0.32;
+        let active = 0;
+        this.NAV.forEach((n, i) => {
+          const el = document.getElementById(n.id);
+          if (el && el.getBoundingClientRect().top + window.scrollY <= probe) active = i;
+        });
+        if (progress !== this.state.progress || active !== this.state.active) {
+          this.setState({ progress, active });
+        }
+      });
+    };
+    this.onWidth = () => {
+      const wide = window.innerWidth >= 1080;
+      if (wide !== this.state.wide) this.setState({ wide, railOpen: wide ? this.state.railOpen : false });
+    };
+    window.addEventListener("scroll", this.onScroll, { passive: true });
+    window.addEventListener("resize", this.onWidth);
+    this.onWidth();
+    this.onScroll();
+  }
+
+  componentWillUnmount() {
+    this.timers.forEach(t => { clearInterval(t); clearTimeout(t); });
+    cancelAnimationFrame(this.raf);
+    cancelAnimationFrame(this.buildRaf);
+    if (this.ro) this.ro.disconnect();
+    if (this.io) this.io.disconnect();
+    if (this.aboutIo) this.aboutIo.disconnect();
+    if (this.onResize) window.removeEventListener("resize", this.onResize);
+    if (this.onScroll) window.removeEventListener("scroll", this.onScroll);
+    if (this.onWidth) window.removeEventListener("resize", this.onWidth);
+  }
+
+  typeLoop() {
+    const speed = Math.max(20, this.props.typingSpeed ?? 85);
+    const step = () => {
+      const n = this.state.typed.length;
+      if (n >= this.NAME.length) return;
+      this.setState({ typed: this.NAME.slice(0, n + 1) });
+      this.timers.push(setTimeout(step, speed));
+    };
+    this.timers.push(setTimeout(step, 350));
+  }
+
+  ramp(key) {
+    const start = performance.now();
+    const dur = 1500;
+    const tick = now => {
+      const t = Math.min(1, (now - start) / dur);
+      const e = 1 - Math.pow(1 - t, 3);
+      this.setState({ [key]: e });
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  setupReveal() {
+    const root = this.rootRef.current;
+    if (!root || this.props.revealAnimations === false) return;
+    const els = Array.from(root.querySelectorAll("[data-reveal]"));
+    let batch = 0, lastTime = 0;
+    this.io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        const now = performance.now();
+        if (now - lastTime > 400) batch = 0;
+        lastTime = now;
+        const delay = Math.min(batch++, 6) * 70;
+        en.target.animate(
+          [{ opacity: 0, transform: "translateY(26px)" }, { opacity: 1, transform: "none" }],
+          { duration: 700, delay, easing: "cubic-bezier(.2,.7,.2,1)", fill: "backwards" }
+        );
+        this.io.unobserve(en.target);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    els.forEach(el => this.io.observe(el));
+
+    const about = this.aboutRef.current;
+    if (about) {
+      this.aboutIo = new IntersectionObserver(entries => {
+        if (entries.some(e => e.isIntersecting)) {
+          this.ramp("aboutP");
+          this.aboutIo.disconnect();
+        }
+      }, { threshold: 0.25 });
+      this.aboutIo.observe(about);
+    }
+  }
+
+  setupParticles() {
+    const canvas = this.canvasRef.current;
+    if (!canvas || this.props.showParticles === false) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = canvas.getContext("2d");
+    let w = 0, h = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    const density = Math.max(10, this.props.particleDensity ?? 62);
+    const speed = this.props.particleSpeed ?? 0.22;
+    let pts = [];
+
+    const build = () => {
+      const cw = canvas.clientWidth, ch = canvas.clientHeight;
+      if (!cw || !ch) { this.buildRaf = requestAnimationFrame(build); return; }
+      w = cw; h = ch;
+      canvas.width = Math.floor(w * dpr); canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.round(density * Math.min(1.6, (w * h) / (1440 * 900)));
+      pts = Array.from({ length: Math.max(14, count) }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * speed,
+        vy: (Math.random() - 0.5) * speed,
+        r: 0.8 + Math.random() * 1.5,
+        gold: Math.random() < 0.16
+      }));
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      const link = Math.min(170, Math.max(110, w * 0.11));
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -20) p.x = w + 20; if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20; if (p.y > h + 20) p.y = -20;
+        for (let j = i + 1; j < pts.length; j++) {
+          const q = pts[j], dx = p.x - q.x, dy = p.y - q.y;
+          const d = Math.hypot(dx, dy);
+          if (d < link) {
+            ctx.strokeStyle = "rgba(59,130,246," + (0.16 * (1 - d / link)).toFixed(3) + ")";
+            ctx.lineWidth = 0.7;
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+          }
+        }
+        ctx.fillStyle = p.gold ? "rgba(245,158,11,0.42)" : "rgba(147,197,253,0.34)";
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      }
+      this.raf = requestAnimationFrame(draw);
+    };
+
+    this.onResize = () => build();
+    window.addEventListener("resize", this.onResize);
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(() => build());
+      this.ro.observe(canvas);
+    }
+    build();
+    draw();
+  }
+
+  copyEmail = () => {
+    const email = "noureldin.em7@gmail.com";
+    const done = () => {
+      this.setState({ copied: true });
+      this.timers.push(setTimeout(() => this.setState({ copied: false }), 1800));
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(email).then(done).catch(done);
+    } else done();
+  };
+
+  renderVals() {
+    const hp = this.state.heroP, ap = this.state.aboutP;
+    const act = this.state.active;
+    const nav = this.NAV.map((n, i) => ({
+      id: n.id,
+      href: "#" + n.id,
+      label: n.label,
+      num: "0" + (i + 1),
+      dot: {
+        width: i === act ? "10px" : "6px",
+        height: i === act ? "10px" : "6px",
+        borderRadius: "999px",
+        flex: "none",
+        background: i === act ? "#3B82F6" : "#334155",
+        boxShadow: i === act ? "0 0 0 4px rgba(59,130,246,.18)" : "none",
+        transition: "all .35s cubic-bezier(.2,.7,.2,1)"
+      },
+      link_style: {
+        display: "flex",
+        alignItems: "center",
+        gap: "13px",
+        padding: "11px 12px",
+        borderRadius: "10px",
+        textDecoration: "none",
+        background: i === act ? "rgba(59,130,246,.14)" : "transparent",
+        transition: "background .3s cubic-bezier(.4,0,.2,1)"
+      },
+      label_style: {
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "11px",
+        letterSpacing: ".14em",
+        textTransform: "uppercase",
+        color: i === act ? "#BFDBFE" : "#5A6A85",
+        transform: i === act ? "translateX(2px)" : "none",
+        transition: "color .35s ease, transform .35s ease"
+      }
+    }));
+    const open = this.state.railOpen;
+    const bar = (rot, y, hide) => ({
+      width: "18px",
+      height: "1.6px",
+      borderRadius: "2px",
+      background: "#BFDBFE",
+      opacity: hide && open ? 0 : 1,
+      transform: open ? "translateY(" + y + "px) rotate(" + rot + "deg)" : "none",
+      transition: "transform .25s cubic-bezier(.34,1.56,.64,1), opacity .18s ease"
+    });
+    return {
+      nav: nav,
+      toggleRail: this.toggleRail,
+      closeRail: this.closeRail,
+      barTop: bar(45, 6.6, false),
+      barMid: bar(0, 0, true),
+      barBot: bar(-45, -6.6, false),
+      scrimStyle: {
+        position: "fixed",
+        inset: 0,
+        zIndex: 45,
+        background: "rgba(4,8,18,.55)",
+        backdropFilter: "blur(2px)",
+        opacity: open ? 1 : 0,
+        pointerEvents: open ? "auto" : "none",
+        transition: "opacity .3s cubic-bezier(.4,0,.2,1)"
+      },
+      railStyle: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        bottom: 0,
+        zIndex: 50,
+        width: "220px",
+        display: "flex",
+        flexDirection: "column",
+        padding: "84px 18px 26px",
+        background: "#0D1526",
+        borderRight: "1px solid rgba(255,255,255,.08)",
+        boxShadow: open ? "24px 0 60px -30px rgba(0,0,0,.9)" : "none",
+        transform: open ? "translateX(0)" : "translateX(-104%)",
+        transition: "transform .42s cubic-bezier(.34,1.36,.64,1), box-shadow .42s ease"
+      },
+      progressStyle: {
+        height: "100%",
+        width: (this.state.progress * 100).toFixed(2) + "%",
+        background: "linear-gradient(90deg, #3B82F6, #F59E0B)",
+        boxShadow: "0 0 12px rgba(59,130,246,.7)"
+      },
+      rootRef: this.rootRef,
+      canvasRef: this.canvasRef,
+      aboutRef: this.aboutRef,
+      typedName: this.state.typed,
+      role: this.ROLES[this.state.roleI],
+      h1: Math.round(5 * hp),
+      h2: Math.round(163 * hp),
+      h3: Math.round(13 * hp),
+      h4: Math.round(5 * hp),
+      a1: Math.round(5 * ap),
+      a2: Math.round(163 * ap),
+      a3: Math.round(13 * ap),
+      a4: Math.round(3 * ap),
+      copyEmail: this.copyEmail,
+      copyLabel: this.state.copied ? "Copied ✓" : "Copy"
+    };
+  }
+}
+</script>
+
+<script>
+// ── APEX PORTFOLIO CMS ─────────────────────────────────────────────────────
+// Loads extra projects from localStorage (set by admin.html) and appends them
+(function() {
+  var KEY = 'apex_portfolio_projects';
+  var stored = [];
+  try { stored = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
+  if (!stored.length) return;
+
+  var grid = document.querySelector('[data-projects-grid]');
+  if (!grid) {
+    // fallback: find the project cards container by looking for the 6-card grid
+    var allGrids = document.querySelectorAll('div[style*="grid-template-columns"]');
+    for (var i = 0; i < allGrids.length; i++) {
+      if (allGrids[i].querySelectorAll('[data-project-card], [style*="border-radius: 16px"]').length >= 3) {
+        grid = allGrids[i]; break;
+      }
+    }
+  }
+  if (!grid) return;
+
+  var ROLE_COLORS = {
+    'Business Analyst': { bg: 'rgba(59,130,246,.9)', color: '#F8FAFF', border: 'rgba(147,197,253,.4)', left: '#3B82F6' },
+    'Data Analyst':     { bg: 'rgba(167,139,250,.9)', color: '#1A1033', border: 'rgba(196,181,253,.5)', left: '#8B5CF6' },
+    'Financial Analyst':{ bg: 'rgba(245,158,11,.92)', color: '#241703', border: 'rgba(251,191,36,.5)', left: '#F59E0B' },
+    'Self-Development': { bg: 'rgba(45,212,191,.9)', color: '#04211E', border: 'rgba(94,234,212,.5)', left: '#2DD4BF' },
+    'Other':            { bg: 'rgba(148,163,184,.8)', color: '#0F172A', border: 'rgba(148,163,184,.4)', left: '#94A3B8' },
+  };
+
+  stored.forEach(function(p) {
+    var rc = ROLE_COLORS[p.role] || ROLE_COLORS['Other'];
+    var tools = (p.tools || '').split(',').map(function(t) {
+      return '<span style="padding:3px 9px;border-radius:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#94A3B8;">' + t.trim() + '</span>';
+    }).join('');
+    var bullets = (p.outcomes || '').split('
+').filter(Boolean).map(function(o) {
+      return '<li style="display:flex;gap:10px;font-size:13.5px;color:#94A3B8;line-height:1.55;"><span style="color:#3B82F6;flex-shrink:0;margin-top:2px;">✓</span><span>' + o + '</span></li>';
+    }).join('');
+
+    var card = document.createElement('div');
+    card.innerHTML = '<div style="display:flex;flex-direction:column;gap:18px;padding:26px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px);border-left:3px solid ' + rc.left + ';transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s ease;" onmouseenter="this.style.transform='translateY(-5px)';this.style.boxShadow='0 24px 48px -16px rgba(59,130,246,.28)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
+        '<span style="padding:4px 12px;border-radius:7px;background:' + rc.bg + ';color:' + rc.color + ';font-size:11px;font-weight:700;border:1px solid ' + rc.border + ';">' + p.role + '</span>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;">' + tools + '</div>' +
+      '</div>' +
+      '<div>' +
+        '<div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#F4F7FF;line-height:1.2;">' + p.title + '</div>' +
+        '<div style="margin-top:8px;font-size:13.5px;color:#64748B;line-height:1.55;">' + (p.description||'') + '</div>' +
+      '</div>' +
+      '<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;">' + bullets + '</ul>' +
+      (p.link ? '<a href="' + p.link + '" target="_blank" style="align-self:flex-start;padding:11px 20px;border-radius:9px;background:' + rc.bg + ';color:' + rc.color + ';font-size:13.5px;font-weight:600;border:1px solid ' + rc.border + ';">View Project</a>' : '') +
+    '</div>';
+    grid.appendChild(card);
+  });
+})();
+</script>
+
+</body>
+</html>
