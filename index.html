@@ -865,5 +865,24 @@ class Component extends DCLogic {
 })();
 </script>
 
+<script>
+(function patchProjectLinks() {
+  var PROJECT_LINKS = [
+    'https://drive.google.com/drive/folders/1n3V6mlFl45CNvVBtjcXFdCydzMPU7DcR?usp=drive_link',
+    'https://drive.google.com/drive/folders/1s2jw0T_ytzT98fIdQfAZ4mESEhjJIcqv?usp=drive_link',
+    'https://docs.google.com/spreadsheets/d/15jehHTQiW9sU4ibImQ7pPVBe5wM6Q1Uq/edit?usp=drive_link',
+    'https://docs.google.com/spreadsheets/d/1A_FHlfBGdOSO7RzzYUZbo6aZehOtaZR6/edit?usp=drive_link',
+    '#',
+    'https://app.notion.com/p/38c378b055d7809f9e55d4e6ddba2c98?v=38c378b055d78093bf41000cbee6a9b3&source=copy_link'
+  ];
+  function applyLinks() {
+    var buttons = Array.from(document.querySelectorAll('a')).filter(function(a){return a.textContent.trim()==='View Project';});
+    if(buttons.length < 6) return false;
+    buttons.forEach(function(btn,i){if(PROJECT_LINKS[i]&&PROJECT_LINKS[i]!=='#'){btn.href=PROJECT_LINKS[i];btn.target='_blank';btn.rel='noopener';}});
+    return true;
+  }
+  if(!applyLinks()){var t=0;var iv=setInterval(function(){if(applyLinks()||t++>20)clearInterval(iv);},300);}
+})();
+</script>
 </body>
 </html>
